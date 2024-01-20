@@ -8,9 +8,11 @@ namespace projetoXYZ.Models
     {
         [Key]
         public int EmployeeID { get; set; }
-        public string Name { get; set; }
-        public string Position { get; set; }
-        public string Office { get; set; }
+        [Required(ErrorMessage = "This field is Required")]
+        public string Name { get; set; } = string.Empty;
+        [Required(ErrorMessage = "This field is Required")]
+        public string Position { get; set; } = string.Empty;
+        public string Office { get; set; } = string.Empty;
         public int Age { get; set; }
         public int Salary { get; set; }
     }

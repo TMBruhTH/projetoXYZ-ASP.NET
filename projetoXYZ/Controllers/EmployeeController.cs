@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using projetoXYZ.Context;
 using projetoXYZ.Models;
 using System.Web;
@@ -35,23 +36,68 @@ namespace projetoXYZ.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult AddOrEdit(int id = 0)
-        {
-            return View(new Employee());
-        }
-
         [HttpPost]
-        public IActionResult AddOrEdit()
+        public IActionResult Delete(int id)
         {
             try
             {
-                return View();
+                using (_context)
+                {
+                    Employee? emp = _context.Employees.Where(x => x.EmployeeID == id).FirstOrDefault();
+                    _context.Employees.Remove(emp);
+                    _context.SaveChanges();
+
+                    return Json(new { success = true, message = "Deleted Successfully!!" });
+                }
             }
             catch (Exception)
             {
+                return Json(new { success = false, message = "Not possible deleted the employee!!" });
+            }
+        }
 
-                throw;
+        [HttpGet]
+        public IActionResult AddOrEdit(int id = 0)
+        {
+            if (id == 0)
+            {
+                return View(new Employee());
+            }
+            else
+            {
+                using (_context)
+                {
+                    return View(_context.Employees.Where(x => x.EmployeeID == id).FirstOrDefault<Employee>());
+                }
+            }
+        }
+
+        [HttpPost]
+        public IActionResult AddOrEdit(Employee employee)
+        {
+            try
+            {
+                if (!ModelState.IsValid) { return View(); }
+                string message = string.Empty;
+                using (_context)
+                {
+                    if (employee.EmployeeID == 0)
+                    {
+                        _context.Employees.Add(employee);
+                        message = "Saved Successfully!!";
+                    }
+                    else
+                    {
+                        _context.Entry(employee).State = EntityState.Modified;
+                        message = "Updated Successfully!!";
+                    }
+                    _context.SaveChanges();
+                }
+                return Json(new { success = true, message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
     }

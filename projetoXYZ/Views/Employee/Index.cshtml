@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = "Employee List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>Employee CRUD Operations</h2>
@@ -8,7 +9,7 @@
     <i class="fa fa-plus"></i>Add New
 </a>
 
-<table id="employeeTable" class="display" style="width:100%">
+<table id="employeeTable" name="employeeTable" class="display" style="width:100%">
     <thead>
         <tr>
             <th>Name</th>
@@ -16,15 +17,24 @@
             <th>Office</th>
             <th>Age</th>
             <th>Salary</th>
+            <th></th>
         </tr>
     </thead>
 </table>
 
+<div class="container">
+    <div id="loading" class="loading">
+        Loading&#8230;
+    </div>
+</div>
+
 @section scripts {
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-        
-    <script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/notify.min.js"></script>
+
+    <script type="text/javascript">
         var Popup, dataTable;
 
         $(document).ready(function () {
@@ -35,11 +45,21 @@
                     "datatype": "json"
                 },
                 "columns": [
-                    { "data": "Name" },
-                    { "data": "Position" },
-                    { "data": "Office" },
-                    { "data": "Age" },
-                    { "data": "Salary" }
+                    { data: "name" },
+                    { data: "position" },
+                    { data: "office" },
+                    { data: "age" },
+                    { data: "salary" },
+                    {
+                        data: "employeeID", "render": function (id) {
+                            return `<a class='btn btn-info btn-sm' style='margin-left: 5px;'onclick=PopupForm('@Url.Action("AddOrEdit", "Employee")/${id}')><i class='fa fa-pencil'></i> Edit </a>
+                                    <a class='btn btn-danger btn-sm'onclick=Delete(${id})><i class='fa fa-trash'></i> Delete </a>
+                            `
+                        },
+                        "orderable": false,
+                        "searchable": false,
+                        "width": "150px"
+                    }
                 ],
                 "language": {
                     "emptyTable": "No data found, Please clock on <b>Add New</b> Button!!"
@@ -49,22 +69,91 @@
 
         function PopupForm(url) {
             var formDiv = $('<div/>');
-            
+            showSpinner();
             $.get(url)
                 .done(function (response) {
                     formDiv.html(response);
-                    
+                    hideSpinner();
                     Popup = formDiv.dialog({
                         autoOpen: true,
                         resizable: false,
                         title: "Fill Employee Details",
-                        height: 500,
+                        height: 550,
                         width: 700,
                         close: function () {
                             Popup.dialog("destroy").remove();
+                            dataTable.ajax.reload();
                         }
                     });
                 });
+        }
+
+        function SubmitForm(form) {
+            showSpinner();
+            try {
+                $.validator.unobtrusive.parse(form);
+            } catch (e) {
+                console.log(e);
+            }
+
+            if ($(form).valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: form.action,
+                    data: $(form).serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            Popup.dialog('close');
+                            dataTable.ajax.reload();
+
+                            $.notify(data.message, {
+                                globalPosition: "top center",
+                                className: "success"
+                            });
+                        }
+                        hideSpinner();
+                    }
+                });
+            } else {
+                hideSpinner();
+
+                $.notify("Não foi possível salvar o formulário!!", {
+                    globalPosition: "top center",
+                    className: "info"
+                });
+            }
+            return false;
+        }
+
+        function Delete(id) {
+            showSpinner();
+            if (id) {
+                $.ajax({
+                    type: "POST",
+                    url: `@Url.Action("Delete","Employee")/${id}`,
+                    success: function (data) {
+                        if (data.success) {
+                            dataTable.ajax.reload();
+
+                            $.notify(data.message, {
+                                globalPosition: "top center",
+                                className: "success"
+                            });
+                        }
+                        hideSpinner();
+                    }
+                })
+            }
+        }
+
+        function showSpinner() {
+            var loadingDiv = document.getElementById('loading');
+            loadingDiv.style.visibility = 'visible';
+        }
+
+        function hideSpinner() {
+            var loadingDiv = document.getElementById('loading');
+            loadingDiv.style.visibility = 'hidden';
         }
     </script>
 }
