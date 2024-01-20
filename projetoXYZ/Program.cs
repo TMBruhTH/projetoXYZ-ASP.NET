@@ -28,8 +28,6 @@ app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
 {
-    //endpoints.MapAreaControllerRoute("areas", "IPODB", "{area}/{controller=MainMenu}/{action=Index}/{id?}");
-    //endpoints.MapControllerRoute("default", "{controller=Employee}/{action=Index}/{id?}");
     endpoints.MapControllers();
 });
 

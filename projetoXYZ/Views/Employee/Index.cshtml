@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Employee List";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "_Layout";
 }
 
 <h2>Employee CRUD Operations</h2>
@@ -22,17 +22,10 @@
     </thead>
 </table>
 
-<div class="container">
-    <div id="loading" class="loading">
-        Loading&#8230;
-    </div>
-</div>
-
 @section scripts {
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/js/notify.min.js"></script>
 
     <script type="text/javascript">
         var Popup, dataTable;
@@ -69,11 +62,15 @@
 
         function PopupForm(url) {
             var formDiv = $('<div/>');
+
             showSpinner();
+
             $.get(url)
                 .done(function (response) {
                     formDiv.html(response);
+
                     hideSpinner();
+
                     Popup = formDiv.dialog({
                         autoOpen: true,
                         resizable: false,
@@ -106,27 +103,30 @@
                             Popup.dialog('close');
                             dataTable.ajax.reload();
 
-                            $.notify(data.message, {
-                                globalPosition: "top center",
-                                className: "success"
-                            });
+                            NotificationSuccess(data.message);
+                            // $.notify(data.message, {
+                            //     globalPosition: "top center",
+                            //     className: "success"
+                            // });
                         }
                         hideSpinner();
                     }
                 });
             } else {
                 hideSpinner();
-
-                $.notify("Não foi possível salvar o formulário!!", {
-                    globalPosition: "top center",
-                    className: "info"
-                });
+                NotificationInfo("Não foi possível salvar o formulário!!");
+                // $.notify("Não foi possível salvar o formulário!!", {
+                //     globalPosition: "top center",
+                //     className: "info"
+                // });
             }
             return false;
         }
 
         function Delete(id) {
+
             showSpinner();
+
             if (id) {
                 $.ajax({
                     type: "POST",
@@ -135,25 +135,17 @@
                         if (data.success) {
                             dataTable.ajax.reload();
 
-                            $.notify(data.message, {
-                                globalPosition: "top center",
-                                className: "success"
-                            });
+                            NotificationSuccess(data.message);
+
+                            // $.notify(data.message, {
+                            //     globalPosition: "top center",
+                            //     className: "success"
+                            // });
                         }
                         hideSpinner();
                     }
                 })
             }
-        }
-
-        function showSpinner() {
-            var loadingDiv = document.getElementById('loading');
-            loadingDiv.style.visibility = 'visible';
-        }
-
-        function hideSpinner() {
-            var loadingDiv = document.getElementById('loading');
-            loadingDiv.style.visibility = 'hidden';
         }
     </script>
 }
