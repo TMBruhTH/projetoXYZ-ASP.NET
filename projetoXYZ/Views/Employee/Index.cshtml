@@ -23,7 +23,7 @@
 @section scripts {
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-
+        
     <script>
         var Popup, dataTable;
 
@@ -48,12 +48,12 @@
         });
 
         function PopupForm(url) {
-            var formDiv = $("<div/>");
-
+            var formDiv = $('<div/>');
+            
             $.get(url)
                 .done(function (response) {
                     formDiv.html(response);
-
+                    
                     Popup = formDiv.dialog({
                         autoOpen: true,
                         resizable: false,
