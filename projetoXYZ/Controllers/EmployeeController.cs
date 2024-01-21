@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using projetoXYZ.Context;
+using projetoXYZ.Interfaces.IRepositories;
 using projetoXYZ.Interfaces.IRepositories.IBaseRepository;
+using projetoXYZ.Interfaces.IService;
 using projetoXYZ.Models;
 using System.Web;
 
@@ -9,13 +11,11 @@ namespace projetoXYZ.Controllers
 {
     public class EmployeeController : Controller
     {
-        private readonly AppDbContext _context;
-        private readonly IBaseRepository<Employee> _employeeRepository;
+        private readonly IEmployeeService _service;
 
-        public EmployeeController(AppDbContext context, IBaseRepository<Employee> employeeRepository)
+        public EmployeeController(IEmployeeService service)
         {
-            _context = context;
-            _employeeRepository = employeeRepository;
+            _service = service;
         }
 
         public IActionResult Index()
@@ -27,11 +27,9 @@ namespace projetoXYZ.Controllers
         {
             try
             {
-                using (_context)
-                {
-                    IEnumerable<Employee> empList = await _employeeRepository.GetAll();
-                    return Json(new { data = empList, success = true });
-                }
+                IEnumerable<Employee> empList = await _service.GetAll();
+
+                return Json(new { data = empList, success = true });
             }
             catch (Exception ex)
             {
@@ -44,15 +42,13 @@ namespace projetoXYZ.Controllers
         {
             try
             {
-                using (_context)
+                Employee emp = await _service.GetById(id);
+                if (emp != null)
                 {
-                    Employee emp = await _employeeRepository.GetById(id);
-                    if (emp != null)
-                    {
-                        await _employeeRepository.Delete(emp);
-                    }
-                    return Json(new { success = true, message = "Deleted Successfully!!" });
+                    await _service.Delete(emp);
                 }
+                return Json(new { success = true, message = "Deleted Successfully!!" });
+
             }
             catch (Exception)
             {
@@ -69,10 +65,7 @@ namespace projetoXYZ.Controllers
             }
             else
             {
-                using (_context)
-                {
-                    return View(await _employeeRepository.GetById(id));
-                }
+                return View(await _service.GetById(id));
             }
         }
 
@@ -83,18 +76,15 @@ namespace projetoXYZ.Controllers
             {
                 if (!ModelState.IsValid) { return View(); }
                 string message = string.Empty;
-                using (_context)
+                if (employee.EmployeeID == 0)
                 {
-                    if (employee.EmployeeID == 0)
-                    {
-                        await _employeeRepository.Add(employee);
-                        message = "Saved Successfully!!";
-                    }
-                    else
-                    {
-                        await _employeeRepository.Update(employee);
-                        message = "Updated Successfully!!";
-                    }
+                    await _service.Add(employee);
+                    message = "Saved Successfully!!";
+                }
+                else
+                {
+                    await _service.Update(employee);
+                    message = "Updated Successfully!!";
                 }
                 return Json(new { success = true, message });
             }

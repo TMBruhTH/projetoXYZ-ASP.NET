@@ -3,7 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using projetoXYZ.Context;
 using projetoXYZ.Context.Interfaces;
 using projetoXYZ.Interfaces.IRepositories.IBaseRepository;
+using projetoXYZ.Interfaces.IService;
 using projetoXYZ.Repository.BaseRepository;
+using projetoXYZ.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,13 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddMvc();
 
+/* Services */
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+/* Repository */
+
+
+/* Base Generic */
 builder.Services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddTransient(typeof(IUnitOfWork), typeof(AppDbContext));
 
