@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using projetoXYZ.Context;
+using projetoXYZ.Interfaces.IRepositories.IBaseRepository;
 using projetoXYZ.Models;
 using System.Web;
 
@@ -9,10 +10,12 @@ namespace projetoXYZ.Controllers
     public class EmployeeController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IBaseRepository<Employee> _employeeRepository;
 
-        public EmployeeController(AppDbContext context)
+        public EmployeeController(AppDbContext context, IBaseRepository<Employee> employeeRepository)
         {
             _context = context;
+            _employeeRepository = employeeRepository;
         }
 
         public IActionResult Index()
@@ -20,13 +23,13 @@ namespace projetoXYZ.Controllers
             return View();
         }
 
-        public IActionResult GetData()
+        public async Task<IActionResult> GetData()
         {
             try
             {
                 using (_context)
                 {
-                    List<Employee> empList = _context.Employees.ToList<Employee>();
+                    IEnumerable<Employee> empList = await _employeeRepository.GetAll();
                     return Json(new { data = empList, success = true });
                 }
             }
@@ -37,16 +40,17 @@ namespace projetoXYZ.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
                 using (_context)
                 {
-                    Employee? emp = _context.Employees.Where(x => x.EmployeeID == id).FirstOrDefault();
-                    _context.Employees.Remove(emp);
-                    _context.SaveChanges();
-
+                    Employee emp = await _employeeRepository.GetById(id);
+                    if (emp != null)
+                    {
+                        await _employeeRepository.Delete(emp);
+                    }
                     return Json(new { success = true, message = "Deleted Successfully!!" });
                 }
             }
@@ -57,7 +61,7 @@ namespace projetoXYZ.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddOrEdit(int id = 0)
+        public async Task<IActionResult> AddOrEdit(int id = 0)
         {
             if (id == 0)
             {
@@ -67,13 +71,13 @@ namespace projetoXYZ.Controllers
             {
                 using (_context)
                 {
-                    return View(_context.Employees.Where(x => x.EmployeeID == id).FirstOrDefault<Employee>());
+                    return View(await _employeeRepository.GetById(id));
                 }
             }
         }
 
         [HttpPost]
-        public IActionResult AddOrEdit(Employee employee)
+        public async Task<IActionResult> AddOrEdit(Employee employee)
         {
             try
             {
@@ -83,15 +87,14 @@ namespace projetoXYZ.Controllers
                 {
                     if (employee.EmployeeID == 0)
                     {
-                        _context.Employees.Add(employee);
+                        await _employeeRepository.Add(employee);
                         message = "Saved Successfully!!";
                     }
                     else
                     {
-                        _context.Entry(employee).State = EntityState.Modified;
+                        await _employeeRepository.Update(employee);
                         message = "Updated Successfully!!";
                     }
-                    _context.SaveChanges();
                 }
                 return Json(new { success = true, message });
             }

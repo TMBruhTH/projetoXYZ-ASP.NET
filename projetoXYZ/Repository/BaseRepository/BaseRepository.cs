@@ -17,12 +17,23 @@ namespace projetoXYZ.Repository.BaseRepository
 
             _context = unitOfWork as AppDbContext;
         }
-
-        public async Task Add(T entity) => await Task.Run(() => _context.Add(entity));
-        public async Task Delete(T entity) => await Task.Run(() => _context.Set<T>().Remove(entity));
+        public async Task Add(T entity)
+        {
+            await _context.AddAsync(entity);
+            await _context.Save();
+        }
+        public async Task Update(T entity)
+        {
+            await Task.Run(() => _context.Entry(entity).State = EntityState.Modified);
+            await _context.Save();
+        }
+        public async Task Delete(T entity)
+        {
+            await Task.Run(() => _context.Set<T>().Remove(entity));
+            await _context.Save();
+        }
         public async Task<IEnumerable<T>> GetAll() => await _context.Set<T>().ToListAsync();
         public async Task<T> GetById(int id) => await _context.Set<T>().FindAsync(id);
-        public async Task Update(T entity) => await Task.Run(() => _context.Entry(entity).State = EntityState.Modified);
-        public void Dispose() =>  _context.Dispose();
+        public void Dispose() => _context.Dispose();
     }
 }
