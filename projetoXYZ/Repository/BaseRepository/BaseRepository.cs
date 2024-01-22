@@ -21,16 +21,22 @@ namespace projetoXYZ.Repository.BaseRepository
         {
             await _context.AddAsync(entity);
             await _context.Save();
+
+            Dispose();
         }
         public async Task Update(T entity)
         {
             await Task.Run(() => _context.Entry(entity).State = EntityState.Modified);
             await _context.Save();
+
+            Dispose();
         }
         public async Task Delete(T entity)
         {
             await Task.Run(() => _context.Set<T>().Remove(entity));
             await _context.Save();
+
+            Dispose();
         }
         public async Task<IEnumerable<T>> GetAll() => await _context.Set<T>().ToListAsync();
         public async Task<T> GetById(int id) => await _context.Set<T>().FindAsync(id);
