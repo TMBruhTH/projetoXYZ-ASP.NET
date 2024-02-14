@@ -1,13 +1,14 @@
 ﻿using projetoXYZ.Models;
+using projetoXYZ.ViewModel;
 
 namespace projetoXYZ.Interfaces.IService
 {
     public interface IEmployeeService
     {
-        Task<Employee> GetById(int id);
-        Task<IEnumerable<Employee>> GetAll();
-        Task Add(Employee entity);
-        Task Update(Employee entity);
-        Task Delete(Employee entity);
+        Task<EmployeeViewModel> GetById(int id);
+        Task<IEnumerable<EmployeeViewModel>> GetAll();
+        Task Add(EmployeeViewModel entity);
+        Task Update(EmployeeViewModel entity);
+        Task Delete(EmployeeViewModel entity);
     }
 }

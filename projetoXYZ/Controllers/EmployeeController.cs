@@ -5,6 +5,7 @@ using projetoXYZ.Interfaces.IRepositories;
 using projetoXYZ.Interfaces.IRepositories.IBaseRepository;
 using projetoXYZ.Interfaces.IService;
 using projetoXYZ.Models;
+using projetoXYZ.ViewModel;
 using System.Web;
 
 namespace projetoXYZ.Controllers
@@ -27,7 +28,7 @@ namespace projetoXYZ.Controllers
         {
             try
             {
-                IEnumerable<Employee> empList = await _service.GetAll();
+                IEnumerable<EmployeeViewModel> empList = await _service.GetAll();
 
                 return Json(new { data = empList, success = true });
             }
@@ -42,7 +43,7 @@ namespace projetoXYZ.Controllers
         {
             try
             {
-                Employee emp = await _service.GetById(id);
+                var emp = await _service.GetById(id);
                 if (emp != null)
                 {
                     await _service.Delete(emp);
@@ -61,7 +62,7 @@ namespace projetoXYZ.Controllers
         {
             if (id == 0)
             {
-                return View(new Employee());
+                return View(new EmployeeViewModel());
             }
             else
             {
@@ -70,7 +71,7 @@ namespace projetoXYZ.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddOrEdit(Employee employee)
+        public async Task<IActionResult> AddOrEdit(EmployeeViewModel employee)
         {
             try
             {

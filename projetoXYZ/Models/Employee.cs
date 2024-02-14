@@ -16,6 +16,5 @@ namespace projetoXYZ.Models
         public string Office { get; set; } = string.Empty;
         public int Age { get; set; }
         public int Salary { get; set; }
-        public string DateString { get; set; } = string.Format("{0: yyyy-MM-dd}", "2019-01-01");
     }
 }
