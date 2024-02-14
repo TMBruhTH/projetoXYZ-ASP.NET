@@ -43,10 +43,9 @@ namespace projetoXYZ.Controllers
         {
             try
             {
-                var emp = await _service.GetById(id);
-                if (emp != null)
+                if (id > 0)
                 {
-                    await _service.Delete(emp);
+                    await _service.Delete(id);
                 }
                 return Json(new { success = true, message = "Deleted Successfully!!" });
 
@@ -75,7 +74,6 @@ namespace projetoXYZ.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) { return View(); }
                 string message = string.Empty;
                 if (employee.EmployeeID == 0)
                 {

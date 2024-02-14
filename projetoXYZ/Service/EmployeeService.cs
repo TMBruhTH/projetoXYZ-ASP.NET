@@ -24,9 +24,9 @@ namespace projetoXYZ.Service
             await _employeeService.Add(model);
         }
 
-        public async Task Delete(EmployeeViewModel entity)
+        public async Task Delete(int EmployeeID)
         {
-            var model = GetObj(entity);
+            var model = await _employeeService.GetById(EmployeeID);
 
             await _employeeService.Delete(model);
         }
@@ -65,6 +65,7 @@ namespace projetoXYZ.Service
         {
             return new Employee
             {
+                EmployeeID = model.EmployeeID,
                 Name = model.Name,
                 Position = model.Position,
                 Office = model.Office,

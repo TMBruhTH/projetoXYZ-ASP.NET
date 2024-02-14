@@ -9,6 +9,6 @@ namespace projetoXYZ.Interfaces.IService
         Task<IEnumerable<EmployeeViewModel>> GetAll();
         Task Add(EmployeeViewModel entity);
         Task Update(EmployeeViewModel entity);
-        Task Delete(EmployeeViewModel entity);
+        Task Delete(int EmployeeID);
     }
 }
